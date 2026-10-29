@@ -1,0 +1,6 @@
+name: aimlapi
+kind: model-provider
+version: 1.0.0
+description: aimlapi.com — 1000+ models behind one OpenAI-compatible API, with guided sign-up in hermes model
+author: aimlapi.com
+requires_hermes: ">=0.22.0"
