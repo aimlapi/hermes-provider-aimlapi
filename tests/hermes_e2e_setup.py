@@ -1,9 +1,10 @@
 """Drive the aimlapi.com ``hermes model`` step end to end inside real Hermes.
 
 Only the network-facing parts are replaced: the guided sign-up returns a fixed
-key and the catalog returns two models. Saving the key, the model picker
-(numbered fallback, fed through stdin) and persisting config.yaml are Hermes's
-own code. Run with ``HERMES_HOME`` set to a scratch home that has this repo's
+key and the catalog returns two models. Saving the key, the model picker and
+persisting config.yaml are Hermes's own code; the picker's curses menu is made
+unavailable (as on a terminal without curses), so it takes its numbered
+fallback and reads the answer from stdin. Run with ``HERMES_HOME`` set to a scratch home that has this repo's
 ``aimlapi`` directory under ``plugins/model-providers`` and pipe ``1`` into
 stdin. Skips on builds without ``model_setup_flow``.
 """
@@ -32,6 +33,7 @@ setup_flow = importlib.import_module(f"{package}.setup_flow")
 
 with (
     mock.patch.object(setup_flow, "_interactive", return_value=True),
+    mock.patch("hermes_cli.curses_ui.curses_radiolist", side_effect=OSError("no curses in CI")),
     mock.patch.object(onboarding, "guided_api_key_setup", return_value="e2e-test-key"),
     mock.patch.object(type(profile), "fetch_models", return_value=["openai/gpt-5.4-mini", "deepseek/deepseek-v4-flash"]),
     mock.patch.object(
