@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run offline tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -b -v
+
+  hermes:
+    name: Hermes ${{ matrix.ref }} — validate and load
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: [v0.22.5, main]
+    steps:
+      - name: Check out Hermes Agent
+        uses: actions/checkout@v5
+        with:
+          repository: NousResearch/hermes-agent
+          ref: ${{ matrix.ref }}
+          # Hermes derives its version from release tags; a shallow clone reports "unknown".
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: false
+      - name: Check out the plugin
+        uses: actions/checkout@v5
+        with:
+          path: _plugin
+          persist-credentials: false
+      - name: Prepare Hermes (same action the catalog CI uses)
+        uses: ./.github/actions/setup-pm
+        with:
+          toolchain: python
+          extras: '[]'
+      - name: hermes plugins validate
+        run: hermes plugins validate --install-deps _plugin/aimlapi </dev/null
+      - name: Load the provider through Hermes discovery
+        run: |
+          set -euo pipefail
+          home="$RUNNER_TEMP/aimlapi-home"
+          mkdir -p "$home/plugins/model-providers"
+          cp -r _plugin/aimlapi "$home/plugins/model-providers/aimlapi"
+          HERMES_HOME="$home" PYTHONPATH="$GITHUB_WORKSPACE" \
+            "${HERMES_PYTHON:-python3}" _plugin/tests/hermes_smoke.py </dev/null
