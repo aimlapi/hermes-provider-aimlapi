@@ -65,3 +65,11 @@ jobs:
           cp -r _plugin/aimlapi "$home/plugins/model-providers/aimlapi"
           HERMES_HOME="$home" PYTHONPATH="$GITHUB_WORKSPACE" \
             "${HERMES_PYTHON:-python3}" _plugin/tests/hermes_smoke.py </dev/null
+      - name: Run the hermes model step end to end (picker answer fed on stdin)
+        run: |
+          set -euo pipefail
+          home="$RUNNER_TEMP/aimlapi-e2e-home"
+          mkdir -p "$home/plugins/model-providers"
+          cp -r _plugin/aimlapi "$home/plugins/model-providers/aimlapi"
+          printf '1\ny\n' | HERMES_HOME="$home" PYTHONPATH="$GITHUB_WORKSPACE" \
+            "${HERMES_PYTHON:-python3}" _plugin/tests/hermes_e2e_setup.py
