@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hermes-provider-aimlapi"
+version = "1.0.0"
+description = "aimlapi.com model-provider plugin for Hermes Agent"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+license = { text = "MIT" }
+authors = [{ name = "aimlapi.com" }]
+keywords = ["hermes-agent", "hermes-plugin", "model-provider", "aimlapi", "llm", "openai-compatible"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/aimlapi/hermes-provider-aimlapi"
+Issues = "https://github.com/aimlapi/hermes-provider-aimlapi/issues"
+"aimlapi.com" = "https://aimlapi.com"
+
+# Hermes loads pip-installed plugins from this entry-point group; importing the
+# package registers the provider.
+[project.entry-points."hermes_agent.plugins"]
+aimlapi = "aimlapi"
+
+[tool.setuptools]
+packages = ["aimlapi"]
+
+[tool.setuptools.package-data]
+aimlapi = ["plugin.yaml"]
