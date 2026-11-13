@@ -14,7 +14,7 @@ ATTRIBUTION_ENV = "AIMLAPI_ATTRIBUTION"
 DEFAULT_PARTNER_ID = "part_H9mK4xR7vT2qN8pL5cY3wBfD"
 DEFAULT_PARTNER_NAME = "hermes-agent"
 INTEGRATION_REPO = "NousResearch/hermes-agent"
-INTEGRATION_VERSION = "1.0.0"
+INTEGRATION_VERSION = "1.1.0"
 SOURCE = "agent/hermes-agent"
 DEFAULT_MODEL = "anthropic/claude-sonnet-5"
 
