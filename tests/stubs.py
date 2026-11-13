@@ -6,6 +6,7 @@ legacy one that predates ``model_setup_flow`` and ``aggregator``.
 
 from __future__ import annotations
 
+import copy
 import dataclasses
 import importlib
 import sys
@@ -59,6 +60,8 @@ class Recorder:
         self.picker_answer: str | None = None
         self.inputs: deque = deque()
         self.output: list[str] = []
+        self.config: dict[str, Any] = {}
+        self.config_saves: list[dict[str, Any]] = []
 
     def answer(self, *values: Any) -> None:
         """Queue answers for ``line_input``; an exception instance is raised instead."""
@@ -74,6 +77,8 @@ def _module(name: str, **attrs: Any) -> types.ModuleType:
 def install(rec: Recorder, profile_cls: type) -> None:
     def line_input(prompt_text: str) -> str:
         rec.output.append(prompt_text)
+        if not rec.inputs:
+            raise EOFError("no queued answer")
         value = rec.inputs.popleft()
         if isinstance(value, BaseException):
             raise value
@@ -85,6 +90,10 @@ def install(rec: Recorder, profile_cls: type) -> None:
     def prompt_model_selection(model_ids, **kwargs):
         rec.picker_calls.append((list(model_ids), kwargs))
         return rec.picker_answer
+
+    def save_config(config, **_kwargs):
+        rec.config = copy.deepcopy(config)
+        rec.config_saves.append(copy.deepcopy(config))
 
     providers = _module("providers", register_provider=rec.registered.append)
     providers.__path__ = []
@@ -108,6 +117,8 @@ def install(rec: Recorder, profile_cls: type) -> None:
         "hermes_cli.config": _module(
             "hermes_cli.config",
             save_env_value_secure=lambda key, value: rec.saved_env.append((key, value)),
+            load_config=lambda: copy.deepcopy(rec.config),
+            save_config=save_config,
         ),
         "hermes_cli.model_setup": _module(
             "hermes_cli.model_setup",

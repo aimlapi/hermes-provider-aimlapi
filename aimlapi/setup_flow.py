@@ -4,6 +4,9 @@ Uses only the documented plugin helpers: ``agent.secret_scope.get_secret`` to
 read the saved key, ``hermes_cli.config`` to save a new one,
 ``hermes_cli.auth_model_picker.prompt_model_selection`` for the picker and
 ``hermes_cli.model_setup`` to persist the choice.
+
+After the model step it offers, default No, to add the aimlapi.com MCP server
+to ``config.yaml`` (see ``mcp.py``).
 """
 
 from __future__ import annotations
@@ -76,6 +79,57 @@ def run_model_setup(profile: Any, config: Any, current_model: str = "", args: An
     )
     if not selected:
         print("No change.")
+    else:
+        persist_model_selection(selected, PROVIDER_ID, base_url=base_url)
+        print_success(f"Default model set to: {selected} (via aimlapi.com)")
+    offer_mcp_server(base_url)
+
+
+def _confirm(question: str) -> bool:
+    from hermes_cli.cli_output import line_input
+
+    try:
+        answer = line_input(f"{question} [y/N]: ")
+    except (KeyboardInterrupt, EOFError):
+        print()
+        return False
+    return answer.strip().lower() in {"y", "yes"}
+
+
+def offer_mcp_server(base_url: str) -> None:
+    """Ask (default No) whether to add the aimlapi.com MCP server to config.yaml."""
+    from hermes_cli.cli_output import print_info, print_success, print_warning
+    from hermes_cli.config import load_config
+
+    from . import mcp
+
+    if mcp.existing_entry(load_config()) is not None:
+        print_info(f"MCP server '{mcp.SERVER_NAME}' is already in config.yaml; left as is.")
         return
-    persist_model_selection(selected, PROVIDER_ID, base_url=base_url)
-    print_success(f"Default model set to: {selected} (via aimlapi.com)")
+    print()
+    print_info(
+        "The aimlapi.com MCP server (mcp.aimlapi.com) gives Hermes tools for model discovery, "
+        "account balance, image/video/audio generation, chat, embeddings and the aimlapi.com Toolbox."
+    )
+    print_info(
+        "Generation, chat and Toolbox runs are billed to your aimlapi.com balance; "
+        "Hermes asks before each call that is not read-only."
+    )
+    if not _confirm("Add the aimlapi.com MCP server to Hermes?"):
+        print_info("MCP server not added. Run `hermes model` again to add it later.")
+        return
+    outcome, _entry = mcp.add_server(base_url)
+    if outcome == "exists":
+        print_info(f"MCP server '{mcp.SERVER_NAME}' is already in config.yaml; left as is.")
+    elif outcome == "key":
+        print_success(
+            f"Added MCP server '{mcp.SERVER_NAME}': it authenticates with {mcp.KEY_REFERENCE} "
+            "from your Hermes .env (the key is not written to config.yaml). "
+            "Tools load in your next session."
+        )
+    else:
+        print_warning(
+            "aimlapi.com is set up through a non-aimlapi.com endpoint, so your key is not "
+            f"sent to the MCP server. Added '{mcp.SERVER_NAME}' with OAuth sign-in instead: "
+            f"run `hermes mcp login {mcp.SERVER_NAME}`."
+        )

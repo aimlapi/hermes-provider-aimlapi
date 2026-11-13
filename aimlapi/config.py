@@ -85,6 +85,26 @@ def attribution_headers() -> dict[str, str]:
     }
 
 
+# Hosts that may receive attribution headers and the key from the MCP entry: exact names only.
+ATTRIBUTION_HOSTS = frozenset({"api.aimlapi.com", "mcp.aimlapi.com"})
+
+
+def is_attribution_host(value: str) -> bool:
+    """True for an HTTPS URL whose hostname is exactly one of ``ATTRIBUTION_HOSTS``."""
+    try:
+        parsed = urlparse(value)
+        port = parsed.port
+    except ValueError:
+        return False
+    return (
+        parsed.scheme.lower() == "https"
+        and (parsed.hostname or "").lower() in ATTRIBUTION_HOSTS
+        and not parsed.username
+        and not parsed.password
+        and port in (None, 443)
+    )
+
+
 def is_trusted_aimlapi_url(value: str) -> bool:
     try:
         parsed = urlparse(value)

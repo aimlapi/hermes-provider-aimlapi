@@ -53,5 +53,6 @@ assert model["default"] == "openai/gpt-5.4-mini", model
 assert model["base_url"] == "https://api.aimlapi.com/v1", model
 env_text = (home / ".env").read_text(encoding="utf-8")
 assert "AIMLAPI_API_KEY=e2e-test-key" in env_text.replace('"', "").replace("'", ""), env_text
+assert "mcp_servers" not in config, "the MCP server was added without a yes"
 print(f"config.yaml model section: {model}")
 print("aimlapi hermes model e2e passed")
