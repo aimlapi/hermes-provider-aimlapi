@@ -251,7 +251,7 @@ PROFILE_FIELDS: dict[str, Any] = {
     "name": PROVIDER_ID,
     "aliases": ("aiml-api", "ai-ml-api"),
     "display_name": "aimlapi.com",
-    "description": "aimlapi.com (1000+ models, one API key)",
+    "description": "AI/ML API (10,000+ models and MCP tools)",
     "signup_url": "https://aimlapi.com/app/keys",
     "env_vars": (API_KEY_ENV,),
     "base_url": _endpoints.inference_base_url,
