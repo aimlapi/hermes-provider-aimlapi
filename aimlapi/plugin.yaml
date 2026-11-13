@@ -1,6 +1,6 @@
 name: aimlapi
 kind: model-provider
 version: 1.1.0
-description: aimlapi.com — 1000+ models behind one OpenAI-compatible API, with guided sign-up and an opt-in aimlapi.com MCP server in hermes model
+description: AI/ML API — 10,000+ models and MCP tools, with an OpenAI-compatible chat API, guided sign-up and an opt-in MCP server in hermes model
 author: aimlapi.com
 requires_hermes: ">=0.22.0"

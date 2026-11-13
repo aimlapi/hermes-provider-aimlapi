@@ -3,9 +3,12 @@
 [aimlapi.com](https://aimlapi.com) model-provider plugin for
 [Hermes Agent](https://github.com/NousResearch/hermes-agent), maintained by aimlapi.com.
 
-It registers aimlapi.com as the `aimlapi` provider over the OpenAI-compatible
-Chat Completions endpoint `https://api.aimlapi.com/v1`: one key for 1000+
-models from OpenAI, Anthropic, Google, DeepSeek, Qwen, Moonshot, xAI and others.
+AI/ML API provides access to **10,000+ models and MCP tools** through one account.
+The plugin registers `aimlapi` as an OpenAI-compatible chat provider at
+`https://api.aimlapi.com/v1`, with models from OpenAI, Anthropic, Google,
+DeepSeek, Qwen, Moonshot, xAI and others. Its optional MCP connection adds
+model discovery, media generation and the AI/ML API Toolbox; the combined
+count covers models and tools, not chat models alone.
 Credential resolution, the `/model` picker, `hermes doctor` and `--provider`
 auto-wire from the Hermes provider registry. The plugin touches no Hermes core
 files.
